@@ -564,12 +564,12 @@ void process()
 				{
 					//ceres::LossFunction *loss_function = NULL;
 					ceres::LossFunction *loss_function = new ceres::HuberLoss(0.1);
-					ceres::LocalParameterization *q_parameterization =
-						new ceres::EigenQuaternionParameterization();
+					ceres::Manifold *q_manifold =
+						new ceres::QuaternionManifold();
 					ceres::Problem::Options problem_options;
 
 					ceres::Problem problem(problem_options);
-					problem.AddParameterBlock(parameters, 4, q_parameterization);
+					problem.AddParameterBlock(parameters, 4, q_manifold);
 					problem.AddParameterBlock(parameters + 4, 3);
 
 					TicToc t_data;
