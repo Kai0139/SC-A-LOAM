@@ -126,7 +126,7 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloudMsg)
         else
             return;
     }
-
+    
     TicToc t_whole;
     TicToc t_prepare;
     std::vector<int> scanStartInd(N_SCANS, 0);
@@ -204,6 +204,15 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloudMsg)
         }
         // Ouster OS1-64 (e.g., MulRan)
         else if (LIDAR_TYPE == "OS1-64" && N_SCANS == 64)
+        {   
+            scanID = int((angle + 22.5) / 2 + 0.5); // ouster os1-64 vfov is [-22.5, 22.5] see https://ouster.com/products/os1-lidar-sensor/
+            if (scanID > (N_SCANS - 1) || scanID < 0)
+            {
+                count--;
+                continue;
+            }
+        }
+        else if (LIDAR_TYPE == "OS1-128" && N_SCANS == 128)
         {   
             scanID = int((angle + 22.5) / 2 + 0.5); // ouster os1-64 vfov is [-22.5, 22.5] see https://ouster.com/products/os1-lidar-sensor/
             if (scanID > (N_SCANS - 1) || scanID < 0)
@@ -483,14 +492,15 @@ int main(int argc, char **argv)
     nh.param<double>("minimum_range", MINIMUM_RANGE, 0.1);
     nh.param<std::string>("lidar_topic", LIDAR_TOPIC, "/ouster/points");
 
-    //printf("scan line number %d \n", N_SCANS);
+    printf("scan line number %d \n", N_SCANS);
 
-    if(N_SCANS != 16 && N_SCANS != 32 && N_SCANS != 64)
+    if(N_SCANS != 16 && N_SCANS != 32 && N_SCANS != 64 && N_SCANS != 128)
     {
         //printf("only support velodyne with 16, 32 or 64 scan line!");
         return 0;
     }
-
+    
+    std::cout << "lidar topic: " << LIDAR_TOPIC << std::endl;
     ros::Subscriber subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>(LIDAR_TOPIC, 100, laserCloudHandler);
 
     pubLaserCloud = nh.advertise<sensor_msgs::PointCloud2>("/velodyne_cloud_2", 100);
