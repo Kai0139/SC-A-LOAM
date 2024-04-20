@@ -58,6 +58,7 @@ using std::cos;
 using std::sin;
 
 std::string LIDAR_TYPE;
+std::string LIDAR_TOPIC;
 
 const double scanPeriod = 0.1;
 
@@ -480,6 +481,7 @@ int main(int argc, char **argv)
     nh.param<int>("scan_line", N_SCANS, 16);
     nh.param<std::string>("lidar_type", LIDAR_TYPE, "KITTI");
     nh.param<double>("minimum_range", MINIMUM_RANGE, 0.1);
+    nh.param<std::string>("lidar_topic", LIDAR_TOPIC, "/ouster/points");
 
     //printf("scan line number %d \n", N_SCANS);
 
@@ -489,7 +491,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    ros::Subscriber subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>("/velodyne_points", 100, laserCloudHandler);
+    ros::Subscriber subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>(LIDAR_TOPIC, 100, laserCloudHandler);
 
     pubLaserCloud = nh.advertise<sensor_msgs::PointCloud2>("/velodyne_cloud_2", 100);
 
